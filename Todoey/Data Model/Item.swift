@@ -1,5 +1,5 @@
 //
-//  Items.swift
+//  Item.swift
 //  Todoey
 //
 //  Created by Char Shu Kai on 14/2/2020.
@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import RealmSwift
 
-class Item{
+class Item: Object{
     
-    var title:String = ""
-    var done:Bool = false
+    @objc dynamic var title: String = "" 
+    @objc dynamic var done: Bool = false
+    var parentCategory = LinkingObjects(fromType: Category.self, property: "items")
+    
 }
