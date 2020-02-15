@@ -28,7 +28,7 @@ class TodoListViewController: UITableViewController {
      }
     
 
-    //MARK: TableView DataSouce Methods
+    //MARK: TableView DataSouce Methods (numberOfRow & cellForRow)
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
        
         return todoItems?.count ?? 1
@@ -53,14 +53,22 @@ class TodoListViewController: UITableViewController {
     
     
     
-    //MARK: TableView Delegate Methods
+    //MARK: TableView Delegate Methods (didSelectRow)
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-//        todoItems[indexPath.row].done = !todoItems[indexPath.row].done
-//
-//        saveItems()
+        if let item = todoItems?[indexPath.row]{
+            do{
+            try realm.write {
+                item.done = !item.done
+            }
+                }catch{
+                    print("Error saving done status, \(error)")
+             }
+           
+        }
         
-        
+        tableView.reloadData()
+
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
@@ -80,6 +88,7 @@ class TodoListViewController: UITableViewController {
                 try self.realm.write {
                     let newItem = Item()
                     newItem.title = textField.text!
+                    newItem.dateCreated = Date()
                     currentCategory.items.append(newItem)
                   }
                 }catch{
@@ -103,10 +112,38 @@ class TodoListViewController: UITableViewController {
     }
     
     
-   //MarK: - load the items method
+   //MARK: - load the items method (loadItems)
     func loadItems(){
         
-        todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        todoItems = selectedCategory?.items.sorted(byKeyPath: "dateCreated", ascending: true)
+        
+        tableView.reloadData()
     }
+}
+
+
+
+//MARk: - Search bar methods (extension)(searchBarSearchButtonClicked)
+extension TodoListViewController: UISearchBarDelegate{
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: true)
+        
+        tableView.reloadData()
+        
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text?.count == 0{
+            loadItems()
+            
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+    
 }
 

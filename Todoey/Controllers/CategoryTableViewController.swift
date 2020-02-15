@@ -13,7 +13,7 @@ class CategoryTableViewController: UITableViewController {
     
     let realm = try! Realm()
     
-    var categoryArray: Results<Category>?
+    var categories: Results<Category>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,18 +27,19 @@ class CategoryTableViewController: UITableViewController {
 
    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-         return categoryArray?.count ?? 1
+         return categories?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Category Added"
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Category Added"
         
         return cell
         
     }
+    
 
     // MARK: - Table view data delegate
   
@@ -52,10 +53,12 @@ class CategoryTableViewController: UITableViewController {
         let destinationVC = segue.destination as! TodoListViewController
         
         if let indexPath = tableView.indexPathForSelectedRow{
-            destinationVC.selectedCategory = categoryArray?[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row]
         }
         
     }
+    
+    
     // MARK: - Save Categories
     
     func save(category:Category){
@@ -70,15 +73,17 @@ class CategoryTableViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    
     // MARK: - load Categories
     
     func loadCategories(){
         
-        categoryArray = realm.objects(Category.self)
+        categories = realm.objects(Category.self)
         
         tableView.reloadData()
         
     }
+    
     
     // MARK: - Add New Categories
     
